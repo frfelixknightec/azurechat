@@ -3,7 +3,7 @@ targetScope = 'subscription'
 @minLength(1)
 @maxLength(64)
 @description('Name of the the environment which is used to generate a short unique hash used in all resources.')
-param name string
+param name string 
 
 @minLength(1)
 @description('Primary location for all resources')
@@ -91,6 +91,6 @@ module resources 'resources.bicep' = {
   }
 }
 
-output APP_URL string = resources.outputs.url
+//output APP_URL string = resources.outputs.url
 output AZURE_LOCATION string = location
 output AZURE_TENANT_ID string = tenant().tenantId

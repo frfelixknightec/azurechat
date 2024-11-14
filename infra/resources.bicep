@@ -63,7 +63,36 @@ var databaseName = 'chat'
 var historyContainerName = 'history'
 var configContainerName = 'config'
 
+
 var llmDeployments = [
+  {
+    name: chatGptDeploymentName
+    model: {
+      format: 'OpenAI'
+      name: chatGptModelName
+      version: chatGptModelVersion
+    }
+    sku: {
+      name: 'GlobalStandard'
+      capacity: chatGptDeploymentCapacity
+    }
+    raiPolicyName: 'DefaultPolicy'
+  }
+  {
+    name: embeddingDeploymentName
+    model: {
+      format: 'OpenAI'
+      name: embeddingModelName
+      version: '2'
+    }
+    sku: { // Ensure that embedding also has a sku property
+      name: 'Standard' // Adjust this based on your needs
+      capacity: embeddingDeploymentCapacity
+    }
+    raiPolicyName: 'DefaultPolicy'
+  }
+]
+/* var llmDeployments = [
   {
     name: chatGptDeploymentName
     model: {
@@ -85,9 +114,9 @@ var llmDeployments = [
     }
     capacity: embeddingDeploymentCapacity
   }
-]
+] */
 
-resource appServicePlan 'Microsoft.Web/serverfarms@2020-06-01' = {
+/* resource appServicePlan 'Microsoft.Web/serverfarms@2020-06-01' = {
   name: appservice_name
   location: location
   tags: tags
@@ -102,9 +131,9 @@ resource appServicePlan 'Microsoft.Web/serverfarms@2020-06-01' = {
     capacity: 1
   }
   kind: 'linux'
-}
+} */
 
-resource webApp 'Microsoft.Web/sites@2020-06-01' = {
+/* resource webApp 'Microsoft.Web/sites@2020-06-01' = {
   name: webapp_name
   location: location
   tags: union(tags, { 'azd-service-name': 'frontend' })
@@ -228,14 +257,14 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
       httpLogs: { fileSystem: { enabled: true, retentionInDays: 1, retentionInMb: 35 } }
     }
   }
-}
+} */
 
-resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-12-01-preview' = {
+/* resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-12-01-preview' = {
   name: la_workspace_name
   location: location
 }
-
-resource webDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
+ */
+/* resource webDiagnosticSettings 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
   name: diagnostic_setting_name
   scope: webApp
   properties: {
@@ -258,7 +287,7 @@ resource kvFunctionAppPermissions 'Microsoft.Authorization/roleAssignments@2020-
     principalType: 'ServicePrincipal'
     roleDefinitionId: keyVaultSecretsOfficerRole
   }
-}
+} */
 
 resource kv 'Microsoft.KeyVault/vaults@2021-06-01-preview' = {
   name: keyVaultName
@@ -281,15 +310,15 @@ resource kv 'Microsoft.KeyVault/vaults@2021-06-01-preview' = {
       contentType: 'text/plain'
       value: azureopenai.listKeys().key1
     }
-  }
+  } 
 
-  resource AZURE_OPENAI_DALLE_API_KEY 'secrets' = {
+/*   resource AZURE_OPENAI_DALLE_API_KEY 'secrets' = {
     name: 'AZURE-OPENAI-DALLE-API-KEY'
     properties: {
       contentType: 'text/plain'
       value: azureopenaidalle.listKeys().key1
     }
-  }
+  } */
 
   resource NEXTAUTH_SECRET 'secrets' = {
     name: 'NEXTAUTH-SECRET'
@@ -441,21 +470,34 @@ resource azureopenai 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
   }
 }
 
+/* @batchSize(1) // commented out old code for llmdeployment here
+resource llmdeployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = [for deployment in llmDeployments: {
+  parent: azureopenai
+  name: deployment.name
+  properties: {
+    model: deployment.model
+    raiPolicyName: contains(deployment, 'raiPolicyName') ? deployment.?raiPolicyName : null
+  }
+  sku: contains(deployment, 'sku') ? deployment.sku : {
+    name: 'Standard'
+    capacity: deployment.capacity
+  }
+}] */
 @batchSize(1)
 resource llmdeployment 'Microsoft.CognitiveServices/accounts/deployments@2023-05-01' = [for deployment in llmDeployments: {
   parent: azureopenai
   name: deployment.name
   properties: {
     model: deployment.model
-    raiPolicyName: contains(deployment, 'raiPolicyName') ? deployment.raiPolicyName : null
+    raiPolicyName: deployment.?raiPolicyName ?? null // Safely accessing the optional property
   }
-  sku: contains(deployment, 'sku') ? deployment.sku : {
+  sku: deployment.sku ?? { // Using safe access to provide a default if needed
     name: 'Standard'
-    capacity: deployment.capacity
+    capacity: 1 // Default value, adjust as necessary
   }
 }]
 
-resource azureopenaidalle 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
+/* resource azureopenaidalle 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
   name: openai_dalle_name
   location: dalleLocation
   tags: tags
@@ -481,9 +523,7 @@ resource azureopenaidalle 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
       capacity: dalleDeploymentCapacity
     }
   }
-}
-
-
+} */
 
 resource speechService 'Microsoft.CognitiveServices/accounts@2023-05-01' = {
   name: speech_service_name
@@ -518,4 +558,4 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-05-01' = {
   }
 }
 
-output url string = 'https://${webApp.properties.defaultHostName}'
+//output url string = 'https://${webApp.properties.defaultHostName}'

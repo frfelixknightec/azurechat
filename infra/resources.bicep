@@ -23,7 +23,7 @@ param speechServiceSkuName string = 'S0'
 
 param formRecognizerSkuName string = 'S0'
 
-param searchServiceSkuName string = 'standard'
+param searchServiceSkuName string = 'basic'
 param searchServiceIndexName string = 'azure-chat'
 
 param storageServiceSku object
@@ -83,10 +83,10 @@ var llmDeployments = [
     model: {
       format: 'OpenAI'
       name: embeddingModelName
-      version: '2'
+      version: '1'
     }
     sku: { // Ensure that embedding also has a sku property
-      name: 'Standard' // Adjust this based on your needs
+      name: 'standard' // Adjust this based on your needs
       capacity: embeddingDeploymentCapacity
     }
     raiPolicyName: 'DefaultPolicy'

@@ -9,6 +9,16 @@ param name string
 @description('Primary location for all resources')
 param location string
 
+//Testing to add tags manually
+@minLength(1)
+@description('Contact person for resource group')
+param mail string = 'Andrey.Alishev@knightec.se'
+
+//Testing to add tags manually
+@minLength(1)
+@description('Contact person 2 for resource group')
+param mail2 string = 'felix.fredin@knightec.se'
+
 // azure open ai -- regions currently support gpt-4o global-standard
 @description('Location for the OpenAI resource group')
 @allowed(['australiaeast', 'brazilsouth', 'canadaeast', 'eastus', 'eastus2', 'francecentral', 'germanywestcentral', 'japaneast', 'koreacentral', 'northcentralus', 'norwayeast', 'polandcentral', 'spaincentral', 'southafricanorth', 'southcentralus', 'southindia', 'swedencentral', 'switzerlandnorth', 'uksouth', 'westeurope', 'westus', 'westus3'])
@@ -22,13 +32,13 @@ param openAILocation string
 param openAISku string = 'S0'
 param openAIApiVersion string ='2024-08-01-preview'
 
-param chatGptDeploymentCapacity int = 30
+param chatGptDeploymentCapacity int = 10
 param chatGptDeploymentName string = 'gpt-4o'
 param chatGptModelName string = 'gpt-4o'
 param chatGptModelVersion string = '2024-05-13'
 param embeddingDeploymentName string = 'embedding'
-param embeddingDeploymentCapacity int = 120
-param embeddingModelName string = 'text-embedding-ada-002'
+param embeddingDeploymentCapacity int = 80 
+param embeddingModelName string = 'text-embedding-3-large'
 
 // DALL-E v3 only supported in limited regions for now
 @description('Location for the OpenAI DALL-E 3 instance resource group')
@@ -42,7 +52,7 @@ param dalleApiVersion string = '2023-12-01-preview'
 
 param formRecognizerSkuName string = 'S0'
 param searchServiceIndexName string = 'azure-chat'
-param searchServiceSkuName string = 'standard'
+param searchServiceSkuName string = 'basic'
 
 // TODO: define good default Sku and settings for storage account
 param storageServiceSku object = { name: 'Standard_LRS' } 
@@ -50,8 +60,12 @@ param storageServiceImageContainerName string = 'images'
 
 param resourceGroupName string = ''
 
-var resourceToken = toLower(uniqueString(subscription().id, name, location))
-var tags = { 'azd-env-name': name }
+var resourceToken = 'unique420'//toLower(uniqueString(subscription().id, name, location)) //Trying to remove uniqueString
+var tags = { 
+          'azd-dnv-name': name
+          'Contact': mail
+          'Contact2': mail2
+          } //Test to see if multiple tags can be added
 
 // Organize resources in a resource group
 resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {

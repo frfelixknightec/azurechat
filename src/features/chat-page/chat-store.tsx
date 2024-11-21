@@ -129,8 +129,16 @@ class ChatState {
     InputImageStore.Reset();
   }
 
+  public toggleAutoScroll() {
+    chatStore.autoScroll = !chatStore.autoScroll; // Update the proxy state directly
+  }
+  
   private async chat(formData: FormData) {
-    this.updateAutoScroll(true);
+    //this.updateAutoScroll(true);
+    if (this.autoScroll) {
+      this.updateAutoScroll(true);
+      } 
+
     this.loading = "loading";
 
     const multimodalImage = formData.get("image-base64") as unknown as string;

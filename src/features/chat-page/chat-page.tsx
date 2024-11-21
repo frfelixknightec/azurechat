@@ -10,6 +10,7 @@ import { useSession } from "next-auth/react";
 import { FC, useEffect, useRef } from "react";
 import { ExtensionModel } from "../extensions-page/extension-services/models";
 import { ChatHeader } from "./chat-header/chat-header";
+
 import {
   ChatDocumentModel,
   ChatMessageModel,
@@ -48,6 +49,7 @@ export const ChatPage: FC<ChatPageProps> = (props) => {
         chatDocuments={props.chatDocuments}
         extensions={props.extensions}
       />
+      
       <ChatMessageContainer ref={current}>
         <ChatMessageContentArea>
           {messages.map((message) => {
